@@ -1,1 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Smart Meal Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(20,35,30,.58),rgba(20,35,30,.72)),
+    url("https://raw.githubusercontent.com/aankitsingh5454-cell/smart-meal-management/main/university-building.jpg")
+    center/cover fixed no-repeat;
+  color:#26342d;
+  padding-bottom:40px;
+}
+
+.header{
+  text-align:center;
+  padding:28px 15px 15px;
+  color:white;
+}
+
+.logo{
+  width:115px;
+  height:115px;
+  object-fit:contain;
+  background:white;
+  padding:7px;
+  border-radius:50%;
+  box-shadow:0 6px 22px rgba(0,0,0,.4);
+}
+
+.university{
+  margin-top:16px;
+  font-size:21px;
+  font-weight:bold;
+  line-height:1.35;
+  text-shadow:0 2px 5px #000;
+}
+
+.subtitle{
+  margin-top:7px;
+  font-size:15px;
+}
+
+.card{
+  width:calc(100% - 28px);
+  max-width:520px;
+  margin:18px auto;
+  background:rgba(255,255,255,.97);
+  border-radius:28px;
+  padding:27px 20px;
+  box-shadow:0 15px 40px rgba(0,0,0,.35);
+  text-align:center;
+}
+
+.greeting{
+  font-size:27px;
+  font-weight:bold;
+  color:#8d2938;
+  margin-bottom:10px;
+}
+
+.instruction{
+  color:#5d6963;
+  font-size:15px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+.scan-area{
+  display:none;
+  background:#f3f7f1;
+  border:2px dashed #2c7d3c;
+  border-radius:20px;
+  padding:10px;
+  margin-bottom:16px;
+}
+
+.scan-area.active{
+  display:block;
+}
+
+#video{
+  width:100%;
+  height:280px;
+  object-fit:cover;
+  border-radius:14px;
+  background:#111;
+}
+
+.scan-button{
+  width:100%;
+  border:0;
+  border-radius:18px;
+  background:#27833a;
+  color:white;
+  padding:17px;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.scan-button:active{
+  transform:scale(.98);
+}
+
+.stop-button{
+  display:none;
+  width:100%;
+  margin-top:10px;
+  border:0;
+  border-radius:16px;
+  background:#8d2938;
+  color:white;
+  padding:14px;
+  font-size:16px;
+  font-weight:bold;
+}
+
+.status{
+  min-height:24px;
+  margin-top:18px;
+  font-size:14px;
+  font-weight:bold;
+  color:#555;
+}
+
+.result{
+  display:none;
+  margin-top:18px;
+  padding:18px;
+  border-radius:18px;
+  background:#eef8ee;
+  border:1px solid #b8dcb8;
+}
+
+.result h3{
+  color:#27833a;
+  margin-bottom:8px;
+}
+
+.result p{
+  margin:6px 0;
+  word-break:break-word;
+}
+
+.success{
+  color:#27833a;
+}
+
+.error{
+  color:#b3261e;
+}
+
+.footer{
+  text-align:center;
+  color:white;
+  font-size:12px;
+  margin-top:25px;
+  text-shadow:0 1px 3px #000;
+}
+
+@media(max-width:480px){
+  .university{
+    font-size:19px;
+  }
+
+  .logo{
+    width:105px;
+    height:105px;
+  }
+
+  .card{
+    padding:24px 17px;
+  }
+
+  #video{
+    height:240px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+  <img
+    class="logo"
+    src="https://raw.githubusercontent.com/aankitsingh5454-cell/smart-meal-management/main/university-logo.jpg"
+    alt="Mahayogi Guru Gorakhnath AYUSH University Logo"
+  >
+
+  <div class="university">
+    MAHAYOGI GURU GORAKHNATH<br>
+    AYUSH UNIVERSITY, GORAKHPUR
+  </div>
+
+  <div class="subtitle">
+    Smart Meal Management System
+  </div>
+
+</div>
+
+
+<div class="card">
+
+  <div class="greeting">
+    🍽️ Smart Meal Access
+  </div>
+
+  <div class="instruction">
+    Scan the QR code to access your meal service
+  </div>
+
+
+  <div id="scanArea" class="scan-area">
+
+    <video id="video" autoplay playsinline></video>
+
+  </div>
+
+
+  <button
+    id="scanButton"
+    class="scan-button"
+    onclick="startScanner()">
+    📷 SCAN QR CODE
+  </button>
+
+
+  <button
+    id="stopButton"
+    class="stop-button"
+    onclick="stopScanner()">
+    ✕ STOP SCANNER
+  </button>
+
+
+  <div id="status" class="status">
+    Ready to scan
+  </div>
+
+
+  <div id="result" class="result">
+
+    <h3>✅ QR Code Scanned</h3>
+
+    <p>
+      <strong>QR Data:</strong>
+    </p>
+
+    <p id="qrData"></p>
+
+  </div>
+
+</div>
+
+
+<div class="footer">
+  Fast • Simple • Contactless
+  <br><br>
+  Mahayogi Guru Gorakhnath AYUSH University, Gorakhpur
+</div>
+
+
+<script>
+
+let video = document.getElementById("video");
+let scanArea = document.getElementById("scanArea");
+let scanButton = document.getElementById("scanButton");
+let stopButton = document.getElementById("stopButton");
+let statusBox = document.getElementById("status");
+let resultBox = document.getElementById("result");
+let qrDataBox = document.getElementById("qrData");
+
+let stream = null;
+let scanning = false;
+let canvas = document.createElement("canvas");
+let context = canvas.getContext("2d");
+
+
+async function startScanner(){
+
+  resultBox.style.display = "none";
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+
+    statusBox.innerHTML =
+      '<span class="error">Camera is not supported in this browser. Please use Chrome.</span>';
+
+    return;
+  }
+
+  try{
+
+    statusBox.innerHTML = "📷 Requesting camera permission...";
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{
+          ideal:"environment"
+        }
+      },
+      audio:false
+    });
+
+    video.srcObject = stream;
+
+    scanArea.classList.add("active");
+
+    scanButton.style.display = "none";
+    stopButton.style.display = "block";
+
+    scanning = true;
+
+    statusBox.innerHTML = "🔍 Point your camera at the QR code";
+
+    requestAnimationFrame(scanQR);
+
+  }catch(error){
+
+    console.error(error);
+
+    statusBox.innerHTML =
+      '<span class="error">❌ Camera permission denied or camera unavailable.</span>';
+
+  }
+
+}
+
+
+function scanQR(){
+
+  if(!scanning){
+    return;
+  }
+
+  if(video.readyState === video.HAVE_ENOUGH_DATA){
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    let imageData = context.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    let code = jsQR(
+      imageData.data,
+      imageData.width,
+      imageData.height,
+      {
+        inversionAttempts:"dontInvert"
+      }
+    );
+
+    if(code){
+
+      handleQRCode(code.data);
+      return;
+    }
+
+  }
+
+  requestAnimationFrame(scanQR);
+
+}
+
+
+function handleQRCode(data){
+
+  scanning = false;
+
+  stopScanner();
+
+  qrDataBox.textContent = data;
+
+  resultBox.style.display = "block";
+
+  statusBox.innerHTML =
+    '<span class="success">✅ QR code scanned successfully.</span>';
+
+  /*
+   * If the QR code contains a website URL,
+   * open that URL.
+   */
+
+  if(
+    data.startsWith("http://") ||
+    data.startsWith("https://")
+  ){
+
+    setTimeout(function(){
+
+      window.location.href = data;
+
+    },1500);
+
+  }
+
+}
+
+
+function stopScanner(){
+
+  scanning = false;
+
+  if(stream){
+
+    stream.getTracks().forEach(function(track){
+
+      track.stop();
+
+    });
+
+    stream = null;
+
+  }
+
+  video.srcObject = null;
+
+  scanArea.classList.remove("active");
+
+  scanButton.style.display = "block";
+  stopButton.style.display = "none";
+
+}
+
+
+window.addEventListener("beforeunload",function(){
+
+  stopScanner();
+
+});
+
+</script>
+
+</body>
+</html>
