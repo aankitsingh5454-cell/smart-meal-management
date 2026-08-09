@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Meal Management System</title>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#243027;background:#eef2ec url('university-building.jpg') center/cover fixed no-repeat}
+body:before{content:"";position:fixed;inset:0;background:rgba(20,35,25,.52);z-index:-1}.app{max-width:520px;margin:auto;min-height:100vh;padding:18px 14px 90px}
+.header{text-align:center;color:#fff;padding:10px 8px 18px}.logo{width:88px;height:88px;object-fit:contain;border-radius:50%;background:#fff;padding:5px}
+h1{font-size:20px;line-height:1.25;margin:12px 0 3px}.subtitle{font-size:13px}.card{background:#fffffff2;border-radius:24px;padding:22px;box-shadow:0 12px 35px #0004;margin-top:12px}
+.welcome{text-align:center}.welcome h2{color:#8e1d24;margin:0 0 8px;font-size:24px}.welcome p{margin:5px 0;color:#56615a}
+.scanbox{margin:20px auto 15px;border:2px dashed #2f7d32;border-radius:18px;padding:14px;background:#f7fbf4}#reader{width:100%;overflow:hidden;border-radius:12px}
+button{border:0;border-radius:14px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer}.primary{width:100%;background:#287a35;color:#fff}.secondary{background:#eee;color:#333}
+.hidden{display:none!important}.status{text-align:center;margin-top:12px;font-size:14px}.meal{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid #e6e9e4}
+.icon{width:48px;height:48px;border-radius:14px;background:#edf6e9;display:grid;place-items:center;font-size:24px}.meal-info{flex:1}.meal-info b{display:block;font-size:16px}.meal-info span{font-size:13px;color:#6c756f}
+.badge{font-size:12px;padding:7px 9px;border-radius:10px;background:#eef5ea;color:#287a35;font-weight:700}.upcoming{background:#fff4df;color:#a36a00}
+.progress{height:10px;background:#e5e9e3;border-radius:99px;overflow:hidden;margin-top:10px}.progress>div{height:100%;width:0;background:#2f7d32;border-radius:99px;transition:.4s}
+.nav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:min(492px,calc(100% - 28px));background:#fffdf7ee;backdrop-filter:blur(10px);border-radius:20px;padding:9px;display:flex;justify-content:space-around;box-shadow:0 8px 30px #0004}
+.nav span{text-align:center;font-size:11px;color:#536057}.nav strong{display:block;font-size:22px}.notice{padding:12px;border-radius:12px;background:#fff7df;color:#77540b;font-size:13px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+<img class="logo" src="university-logo.jpg" alt="University Logo">
+<h1>MAHAYOGI GURU GORAKHNATH<br>AYUSH UNIVERSITY, GORAKHPUR</h1>
+<div class="subtitle">Smart Meal Management System</div>
+</header>
+
+<section class="card welcome" id="scanScreen">
+<h2>Good Morning! 👋</h2><p>Scan your QR code to access your meal schedule.</p>
+<div class="scanbox"><div id="reader"></div></div>
+<button class="primary" onclick="startScanner()">📷 SCAN QR CODE</button>
+<div id="scanStatus" class="status">Camera will open after you tap Scan.</div>
+<div class="notice">Fast • Simple • Contactless</div>
+</section>
+
+<section class="card hidden" id="dashboard">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div><b id="guestName">Guest</b><br><small id="guestId">ID: —</small></div>
+<span class="badge">✓ QR Verified</span></div>
+<h2 style="color:#287a35;margin-bottom:2px">Today's Meals</h2><small id="today"></small>
+<div class="progress"><div id="bar"></div></div>
+<div id="progressText" style="font-size:13px;margin:7px 0 4px;color:#5d675f">0 / 5 completed</div>
+<div id="meals"></div>
+<button class="secondary" style="width:100%;margin-top:15px" onclick="resetApp()">↩ Scan another QR</button>
+</section></div>
+
+<nav class="nav"><span><strong>⌂</strong>Home</span><span><strong>🍽</strong>Meals</span><span><strong>▥</strong>History</span><span><strong>♙</strong>Profile</span><span><strong>?</strong>Help</span></nav>
+
+<script>
+const meals=[
+{name:"Breakfast",time:"8:00 AM – 9:30 AM",icon:"🍳"},
+{name:"Morning Coffee",time:"11:00 AM – 11:30 AM",icon:"☕"},
+{name:"Lunch",time:"1:30 PM – 2:30 PM",icon:"🍛"},
+{name:"Evening Coffee",time:"4:30 PM – 5:00 PM",icon:"☕"},
+{name:"Dinner",time:"8:00 PM – 9:00 PM",icon:"🍽️"}];
+let completed=[],scanner=null;
+function startScanner(){
+document.getElementById("scanStatus").textContent="Opening camera…";
+if(scanner)return;
+scanner=new Html5Qrcode("reader");
+scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:230,height:230}},async text=>{
+await scanner.stop();scanner=null;handleQR(text)
+},()=>{}).then(()=>document.getElementById("scanStatus").textContent="Point your camera at the QR code.")
+.catch(()=>document.getElementById("scanStatus").textContent="Camera could not open. Allow camera permission and use HTTPS.");
+}
+function handleQR(text){
+let id=text.trim(),name="Guest";
+try{let o=JSON.parse(text);id=o.id||id;name=o.name||name}catch(e){}
+document.getElementById("guestName").textContent=name;
+document.getElementById("guestId").textContent="ID: "+id;
+document.getElementById("scanScreen").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+document.getElementById("today").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+renderMeals();
+}
+function renderMeals(){
+let box=document.getElementById("meals");box.innerHTML="";
+meals.forEach((m,i)=>{let done=completed.includes(i);
+box.innerHTML+=`<div class="meal"><div class="icon">${m.icon}</div><div class="meal-info"><b>${m.name}</b><span>${m.time}</span></div><span class="badge ${done?"":"upcoming"}">${done?"✓ Completed":"Upcoming"}</span>${done?"":`<button class="primary" style="width:auto;padding:9px 10px;font-size:12px" onclick="markDone(${i})">Take</button>`}</div>`});
+let n=completed.length;document.getElementById("bar").style.width=(n/5*100)+"%";document.getElementById("progressText").textContent=n+" / 5 completed";
+}
+function markDone(i){if(!completed.includes(i))completed.push(i);renderMeals()}
+function resetApp(){completed=[];document.getElementById("dashboard").classList.add("hidden");document.getElementById("scanScreen").classList.remove("hidden")}
+</script>
+</body></html>

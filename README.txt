@@ -1,0 +1,1 @@
+Upload index.html, university-logo.jpg and university-building.jpg to your GitHub repository. Then enable GitHub Pages. Next we will connect the scanner to your Google Sheet/Apps Script.
