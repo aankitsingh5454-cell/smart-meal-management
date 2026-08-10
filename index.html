@@ -473,18 +473,70 @@ window.addEventListener("beforeunload",function(){
   stopScanner();
 
 });
-function selectMeal(meal){
+async function selectMeal(meal){
 
   statusBox.innerHTML =
-    '<span class="success">✅ ' + meal + ' selected successfully.</span>';
+    '<span class="success">⏳ Saving meal selection...</span>';
 
-  alert(
-    "Meal Selected: " + meal +
-    "\n\nStudent: " + qrDataBox.textContent
-  );
+  const qrParts = qrDataBox.textContent.split("|");
+
+  const qrId = (qrParts[0] || "").trim();
+  const name = (qrParts[1] || "").trim();
+  const department = (qrParts[2] || "").trim();
+
+  if(!qrId || !name || !department){
+
+    statusBox.innerHTML =
+      '<span class="error">❌ Student information is incomplete.</span>';
+
+    return;
+  }
+
+  const backendURL =
+    "https://script.google.com/macros/s/AKfycbxDy2wGN57BG4ZN3votMzMZebYo5-HyHyT5BYyfHfStLWQM3rWt7608JnHpB4inVcZFwg/exec";
+
+  try{
+
+    await fetch(backendURL, {
+
+      method: "POST",
+
+      mode: "no-cors",
+
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+
+      body: JSON.stringify({
+        qrId: qrId,
+        name: name,
+        department: department,
+        meal: meal
+      })
+
+    });
+
+    statusBox.innerHTML =
+      '<span class="success">✅ ' +
+      meal +
+      ' selected successfully.</span>';
+
+    alert(
+      "Meal Selected: " + meal +
+      "\n\nStudent: " +
+      qrId + " | " +
+      name + " | " +
+      department +
+      "\n\n✅ Meal record sent successfully."
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    statusBox.innerHTML =
+      '<span class="error">❌ Unable to save meal. Please try again.</span>';
+
+  }
 
 }
-</script>
-
-</body>
-</html>
