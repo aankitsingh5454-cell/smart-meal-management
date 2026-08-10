@@ -406,26 +406,41 @@ function handleQRCode(data){
   statusBox.innerHTML =
     '<span class="success">✅ QR code scanned successfully.</span>';
 
-  /*
-   * If the QR code contains a website URL,
-   * open that URL.
-   */
+  // MEAL SELECTION
+  const mealBox = document.createElement("div");
 
-  if(
-    data.startsWith("http://") ||
-    data.startsWith("https://")
-  ){
+  mealBox.id = "mealSelection";
 
-    setTimeout(function(){
+  mealBox.style.marginTop = "20px";
 
-      window.location.href = data;
+  mealBox.innerHTML = `
+    <h3 style="color:#27833a;margin-bottom:15px;">
+      🍽️ Select Your Meal
+    </h3>
 
-    },1500);
+    <button onclick="selectMeal('Breakfast')" 
+      style="width:100%;padding:14px;margin:6px 0;border:0;border-radius:12px;background:#27833a;color:white;font-size:16px;">
+      🌅 Breakfast
+    </button>
 
-  }
+    <button onclick="selectMeal('Lunch')" 
+      style="width:100%;padding:14px;margin:6px 0;border:0;border-radius:12px;background:#27833a;color:white;font-size:16px;">
+      ☀️ Lunch
+    </button>
+
+    <button onclick="selectMeal('Dinner')" 
+      style="width:100%;padding:14px;margin:6px 0;border:0;border-radius:12px;background:#27833a;color:white;font-size:16px;">
+      🌙 Dinner
+    </button>
+
+    <p id="selectedMeal"
+       style="margin-top:15px;font-weight:bold;color:#8d2938;">
+    </p>
+  `;
+
+  resultBox.appendChild(mealBox);
 
 }
-
 
 function stopScanner(){
 
