@@ -473,7 +473,17 @@ window.addEventListener("beforeunload",function(){
   stopScanner();
 
 });
+function selectMeal(meal){
 
+  statusBox.innerHTML =
+    '<span class="success">✅ ' + meal + ' selected successfully.</span>';
+
+  alert(
+    "Meal Selected: " + meal +
+    "\n\nStudent: " + qrDataBox.textContent
+  );
+
+}
 </script>
 
 </body>
